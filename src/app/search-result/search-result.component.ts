@@ -19,8 +19,8 @@ import { StockService } from "../stock.service";
 })
 export class SearchResultComponent implements OnInit {
   //求解Highcharts
-  // Highcharts: typeof Highcharts = Highcharts; // 将Highcharts赋值给组件属性以在模板中使用
-  // chartOptions!: Highcharts.Options; // 用于存储图表配置的属性
+  Highcharts: typeof Highcharts = Highcharts; // 将Highcharts赋值给组件属性以在模板中使用
+  chartOptions: Highcharts.Options = {}; // 用于存储图表配置的属性
 
   searchTerm: string = "";
   autocompleteResults: any[] = [];
@@ -91,8 +91,10 @@ export class SearchResultComponent implements OnInit {
         if (res && res.recomd) {
           this.recomdInfo = res.recomd as RecomdInfo[];
           console.log(this.recomdInfo, 'this.recomdInfo');
+          this.initChart();
         }
         this.isLoading = false;
+        this.checkStockStarred();
       }
     });
   }
@@ -191,10 +193,9 @@ export class SearchResultComponent implements OnInit {
     //
     if (this.isStar) {
       this.stockService.starStock(data).subscribe((res) => {
-        console.log(res,"save");
+        console.log(res, "save");
       });
-    }
-    else{
+    } else {
       this.stockService.unstarStock(data.ticker).subscribe((res) => {
         console.log(res, "unstarred");
       });
@@ -204,7 +205,9 @@ export class SearchResultComponent implements OnInit {
     this.stockService.getWatchList().subscribe(
       (watchList) => {
         // 假设 this.profile 已有值且包含当前股票的 ticker
-        this.isStar = watchList.some((item: { ticker: string; }) => item.ticker === this.profile.ticker);
+        this.isStar = watchList.some(
+          (item: { ticker: string }) => item.ticker === this.profile.ticker
+        );
       },
       (error) => {
         console.error(error);
@@ -269,46 +272,85 @@ export class SearchResultComponent implements OnInit {
   }
 
   //求解Highcharts
-  // initChart(): void {
-  //   this.chartOptions = {
-  //     chart: {
-  //       type: 'column'
-  //     },
-  //     title: {
-  //       text: 'Analyst Recommendations Over Time'
-  //     },
-  //     xAxis: {
-  //       categories: this.recomdInfo.map(info => info.period)
-  //     },
-  //     yAxis: {
-  //       min: 0,
-  //       title: {
-  //         text: 'Recommendations Count'
-  //       }
-  //     },
-  //     series: [{
-  //       name: 'Buy',
-  //       type: 'column', // 明确指定系列的类型
-  //       data: this.recomdInfo.map(info => info.buy)
-  //     }, {
-  //       name: 'Hold',
-  //       type: 'column', // 明确指定系列的类型
-  //       data: this.recomdInfo.map(info => info.hold)
-  //     }, {
-  //       name: 'Sell',
-  //       type: 'column', // 明确指定系列的类型
-  //       data: this.recomdInfo.map(info => info.sell)
-  //     }, {
-  //       name: 'Strong Buy',
-  //       type: 'column', // 明确指定系列的类型
-  //       data: this.recomdInfo.map(info => info.strongBuy)
-  //     }, {
-  //       name: 'Strong Sell',
-  //       type: 'column', // 明确指定系列的类型
-  //       data: this.recomdInfo.map(info => info.strongSell)
-  //     }]
-  //   };
-  // }
+  initChart(): void {
+    this.chartOptions = {
+      chart: {
+        type: "column",
+      },
+      title: {
+        text: "Analyst Recommendations Over Time",
+      },
+      xAxis: {
+        categories: this.recomdInfo.map((info) => info.period),
+        labels: {
+          style: {
+            fontSize: "12px",
+          },
+        },
+      },
+      // !!
+      yAxis: {
+        min: 0,
+        title: {
+          text: "Recommendations Count",
+        },
+        stackLabels: {
+          enabled: true,
+        },
+        labels: {
+          style: {
+            fonsSize: "12px",
+          },
+        },
+      },
+      // !!
+      legend: {
+        shadow: false,
+        align: "center",
+        verticalAlign: "bottom",
+        layout: "horizontal",
+      },
+      tooltip: {
+        headerFormat: "<b>{point.x}</b><br/>",
+        pointFormat: "{series.name}: {point.y}<br/>Total: {point.stackTotal}",
+      },
+      plotOptions: {
+        column: {
+          stacking: "normal",
+          dataLabels: {
+            enabled: true,
+          },
+        },
+      },
+      series: [
+        {
+          name: "Buy",
+          type: "column", // 明确指定系列的类型
+          data: this.recomdInfo.map((info) => info.buy),
+        },
+        {
+          name: "Hold",
+          type: "column", // 明确指定系列的类型
+          data: this.recomdInfo.map((info) => info.hold),
+        },
+        {
+          name: "Sell",
+          type: "column", // 明确指定系列的类型
+          data: this.recomdInfo.map((info) => info.sell),
+        },
+        {
+          name: "Strong Buy",
+          type: "column", // 明确指定系列的类型
+          data: this.recomdInfo.map((info) => info.strongBuy),
+        },
+        {
+          name: "Strong Sell",
+          type: "column", // 明确指定系列的类型
+          data: this.recomdInfo.map((info) => info.strongSell),
+        },
+      ],
+    };
+  }
   
   
 
