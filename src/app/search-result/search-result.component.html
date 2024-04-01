@@ -1,0 +1,241 @@
+<div class="container">
+    <!-- Title -->
+    <h1 class="text-center">Stock Search</h1>
+    <!-- searchpart -->
+    <div class="search">
+      <!-- searchbar and autocomplete-->
+      <div class="input-group" style="background-color: rgb(215, 214, 214); ">
+        <input type="text" id="searchInput" class="form-control" [(ngModel)]="searchTerm" (input)="onSearchTermChange()"
+          placeholder="Enter Stock Ticker Symbol">
+        <ul *ngIf="autocompleteResults.length > 0">
+          <p *ngFor="let result of autocompleteResults" (click)="selectResult(result)">{{ result.symbol }} - {{
+            result.description }}</p>
+        </ul>
+      </div>
+      <!-- search button -->
+      <button type="button" class="btn btn-outline-secondary" (click)="search()">
+        <i class="fas fa-search"></i>
+      </button>
+  
+      <!-- clear button -->
+      <button type="button" class="btn btn-outline-secondary" (click)="clearSearch()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  
+</div>
+<br><br>
+
+<div *ngIf="isLoading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+
+<div *ngIf="error_message" style="text-align: center; font-size: 2rem;">{{error_message}}</div>
+
+
+<div class="show-result" *ngIf="!error_message && profile.name">
+    <div class="container">
+        <!-- summary&logo -->
+        <div class="row">
+            <!-- ticker -->
+            <div class="col-sm-3 col-xs-3">
+                <div class="text-center">
+                    <div id="part1">
+                        <h3 id="get_symbol">{{profile.ticker}}</h3>
+                        <p id="get_companyname">{{profile.name}}</p>
+                        <p id="get_code">{{profile.exchange}}</p>
+                    </div>
+    
+                </div>
+            </div>
+            <!-- star -->
+            <!-- 求解 收藏 -->
+            <div class="col-sm-1 col-xs-1" (click)="starHandler()">
+                <i *ngIf="isStar" class="fas fa-star"></i>
+                <i *ngIf="!isStar" class="far fa-star"></i>
+            </div>
+    
+            <!-- image -->
+            <div class="col-sm-4 col-xs-4">
+                <div class="text-center">
+                    <img [src]="profile.logo || ''" alt="LOGO" id="get_company_logo">
+                    <br><br>
+                    <!-- 存疑 -->
+                    <div [ngClass]="isMarketOpen ? 'market-open' : 'market-closed'">
+                        {{ marketStatus }}
+                    </div>
+                    <!-- <p>{{ marketStatus }}</p>  -->
+                    <!-- <p id="open-close"></p> -->
+                </div>
+            </div>
+            <!-- price change -->
+            <div class="col-sm-4 col-xs-4">
+                <div class="text-center">
+                    <h3 id="last-price">{{ quote.c }}</h3>
+                    <span id="change" class="span-h4">{{ quote.dp }} </span><span id="change-perc" class="span-h4"> ({{ quote.d }})</span>
+                    <p id="curr_time">{{ quote.t * 1000 | date: 'yyyy-MM-dd'}}</p>
+                </div>
+            </div>
+    
+        </div>
+    
+        <br><br>
+    
+        <!-- 详细信息bar -->
+        <div class="menu_bar">
+    
+            <div class="col-sm-3 col-xs-3">
+                <div class="text-center">
+                    <div class="company_detail" id="stock_summary" (click)="showdata('showsummary')">
+                        <h5>Summary</h5>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-sm-3 col-xs-3">
+                <div class="text-center">
+                    <div class="company_detail" id="stock_news" (click)="showdata('shownews')">
+                        <h5>Top News</h5>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-sm-3 col-xs-3">
+                <div class="text-center">
+                    <div class="company_detail" id="stock_charts" (click)="showdata('showchart')">
+                        <h5>Charts</h5>
+                    </div>
+                </div>
+            </div>
+    
+    
+            <div class="col-sm-3 col-xs-3">
+                <div class="text-center">
+                    <div class="company_detail" id="stock_insight" (click)="showdata('showinsight')">
+                        <h5>Insight</h5>
+                    </div>
+                </div>
+            </div>
+    
+    
+        </div>
+    
+        <br><br>
+        <br><br>
+    
+    
+        <div *ngIf="currentView === 'showsummary'">
+            <div class="col-sm-6">
+                <div><span class="span-h4">High Price: </span><span class="span-h4_num">{{ quote.h }}</span></div>
+                <div><span class="span-h4">Low Price: </span><span class="span-h4_num">{{ quote.l }}</span></div>
+                <div><span class="span-h4">Open Price: </span><span class="span-h4_num">{{ quote.o }}</span></div>
+                <div><span class="span-h4">Prev. Close: </span><span class="span-h4_num">{{ quote.pc }}</span></div>
+                <br><br>
+    
+                <div class="text-center">
+                    <h4 class="company-about">About the Company</h4>
+                    <br><br>
+                    <div><span class="span-h4">IPO Start Date: </span><span class="span-h4_num">{{ profile.ipo }}</span></div>
+                    <div><span class="span-h4">Industry: </span><span class="span-h4_num">{{ profile.finnhubIndustry }}</span></div>
+                    <div>
+                        <span class="span-h4">Webpage: </span>
+                        <a href="{{ profile.weburl }}" class="span-h4_num" target="_blank" rel="noopener noreferrer">{{ profile.weburl }}</a>
+                    </div>
+                      
+                    <h5>Company peers:</h5>
+                    <!-- 存疑 -->
+                    <p class="span-h4_num">{{stockPr}}</p>
+                </div>
+            </div>
+    
+    
+    
+            <!-- 存疑 -->
+            <div class="col-sm-6">
+                <div class="text-center">
+                    <p>chart</p>
+                </div>
+            </div>
+        </div>
+    
+    
+        <!-- news part-->
+        <!-- 存疑-->
+        <div *ngIf="currentView === 'shownews'">
+            <div *ngFor="let item of news | slice:0:16">
+                <div class="col-sm-6" style="border: 1px solid black; border-radius: 3px; padding-top: 30px; padding-bottom: 30px;">
+                    <h5>{{ item.headline }}</h5>
+                </div>
+
+                <!-- <img class="news_img" *ngIf="item.image" [src]="item.image" alt="News image"> -->
+              </div>
+              
+
+            
+            
+    
+        </div>
+    
+        <!-- chart part-->
+        <div *ngIf="currentView === 'showchart'">
+            <!-- <div class="text-center">
+                <div id="get_chart"></div>
+            </div> -->
+            0000000000000000000
+        </div>
+    
+        <!-- insight part-->
+        <div *ngIf="currentView === 'showinsight'">
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="text-center">
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th style="text-align: center;">{{ inSentiment.symbol }}</th>
+                            <th style="text-align: center;">MSPR</th>
+                            <th style="text-align: center;">Change</th>
+                          </tr>
+                        </thead>
+                        <tbody *ngIf="inSentiment.data.length > 0">
+                          <tr>
+                            <td style="font-weight: bold;">Total</td>
+                            <td>{{ calculateTotalMspr() }}</td>
+                            <td>{{ calculateTotalChange() }}</td>
+                          </tr>
+                          <tr>
+                            <td style="font-weight: bold;">Positive</td>
+                            <td>{{ calculateTotalPositiveMspr() }}</td>
+                            <td>{{ calculateTotalPositiveChange() }}</td>
+                          </tr>
+                          <tr>
+                            <td style="font-weight: bold;">Negative</td>
+                            <td>{{ calculateTotalNegativeMspr() }}</td>
+                            <td>{{ calculateTotalNegativeChange() }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                </div>
+            
+            </div>
+            <div class="col-sm-6">
+                <!-- 求解Highcharts -->
+                <!-- <highcharts-chart *ngIf="chartOptions"
+                                  [Highcharts]="Highcharts"
+                                  [options]="chartOptions"
+                                  style="width: 100%; height: 400px; display: block;">
+                </highcharts-chart> -->
+            </div>
+            
+            
+        </div>
+            
+    
+    
+    
+    
+    
+    
+    </div>
+</div>

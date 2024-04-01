@@ -1,0 +1,10 @@
+runtime: nodejs20
+
+handlers:
+- url: /
+  static_files: dist/hw4/browser/index.html
+  upload: dist/hw4/browser/index.html
+
+- url: /(.*)
+  static_files: dist/hw4/browser/\1
+  upload: dist/hw4/browser/(.*)

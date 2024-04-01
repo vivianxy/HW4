@@ -1,0 +1,20 @@
+.navbar-default {
+    background-color: blue;
+    border-color: blue;
+}
+.navbar-default .navbar-brand,
+.navbar-default .navbar-nav>li>a {
+    color: white;
+}
+.navbar-nav {
+    float: right;
+}
+.navbar-default .navbar-nav>li>a:focus,
+.navbar-default .navbar-nav>li>a:hover,
+.navbar-default .navbar-nav>.active>a,
+.navbar-default .navbar-nav>.active>a:focus,
+.navbar-default .navbar-nav>.active>a:hover {
+    background-color: purple;
+    color: white;
+}
+
