@@ -1,0 +1,9 @@
+FROM node
+WORKDIR /home/node
+COPY ./ /home/node
+
+
+
+
+RUN npm i
+CMD ["node", "./backend/server.js"]
