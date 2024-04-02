@@ -1,6 +1,6 @@
 .card-with-border {
     border: 1px solid black;
-    margin-bottom: 100px; /* 为每个卡片之间添加一些间隔 */
+    margin-bottom: 100px;
     margin-left: 20px;
     margin-right: 20px;
   }
