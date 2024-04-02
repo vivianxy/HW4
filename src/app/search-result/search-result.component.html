@@ -51,7 +51,6 @@
                 </div>
             </div>
             <!-- star -->
-            <!-- 求解 收藏 -->
             <div class="col-sm-1 col-xs-1" (click)="starHandler()">
                 <i *ngIf="isStar" class="fas fa-star"></i>
                 <i *ngIf="!isStar" class="far fa-star"></i>
@@ -62,7 +61,6 @@
                 <div class="text-center">
                     <img [src]="profile.logo || ''" alt="LOGO" id="get_company_logo">
                     <br><br>
-                    <!-- 存疑 -->
                     <div [ngClass]="isMarketOpen ? 'market-open' : 'market-closed'">
                         {{ marketStatus }}
                     </div>
@@ -73,8 +71,17 @@
             <!-- price change -->
             <div class="col-sm-4 col-xs-4">
                 <div class="text-center">
-                    <h3 id="last-price">{{ quote.c }}</h3>
-                    <span id="change" class="span-h4">{{ quote.dp }} </span><span id="change-perc" class="span-h4"> ({{ quote.d }})</span>
+                    <!-- <h3 id="last-price">{{ quote.c }}</h3>
+                    <span id="change" class="span-h4">{{ quote.dp }} </span><span id="change-perc" class="span-h4"> ({{ quote.d }})</span> -->
+                    <h3 id="last-price" [ngClass]="{'text-red': quote.c < 0, 'text-green': quote.c > 0}">
+                        {{ quote.c }}
+                      </h3>
+                      <span id="change" class="span-h4" [ngClass]="{'text-red': quote.c < 0, 'text-green': quote.c > 0}">
+                        {{ quote.dp }}
+                      </span>
+                      <span id="change-perc" class="span-h4" [ngClass]="{'text-red': quote.c < 0, 'text-green': quote.c > 0}">
+                        ({{ quote.d }})
+                      </span>                      
                     <p id="curr_time">{{ quote.t * 1000 | date: 'yyyy-MM-dd'}}</p>
                 </div>
             </div>
@@ -183,7 +190,12 @@
             <!-- <div class="text-center">
                 <div id="get_chart"></div>
             </div> -->
-            0000000000000000000
+            <highcharts-chart 
+            [Highcharts]="Highcharts" 
+            [options]="chartOptions2" 
+            style="width: 100%; height: 400px; display: block;">
+        </highcharts-chart>
+        
         </div>
     
         <!-- insight part-->

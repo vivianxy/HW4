@@ -1,5 +1,6 @@
 import { HttpClient } from "@angular/common/http";
-import * as Highcharts from 'highcharts';
+// import * as Highcharts from 'highcharts';
+import * as Highcharts from 'highcharts/highstock';
 import HC_exporting from 'highcharts/modules/exporting';
 //求解Highcharts，关联下面initChart()
 // HC_exporting(Highcharts);
@@ -21,6 +22,7 @@ export class SearchResultComponent implements OnInit {
   //求解Highcharts
   Highcharts: typeof Highcharts = Highcharts; // 将Highcharts赋值给组件属性以在模板中使用
   chartOptions: Highcharts.Options = {}; // 用于存储图表配置的属性
+  chartOptions2: Highcharts.Options = {};
 
   searchTerm: string = "";
   autocompleteResults: any[] = [];
@@ -28,6 +30,7 @@ export class SearchResultComponent implements OnInit {
   constructor(private http: HttpClient, private stockService: StockService) {}
   marketStatus: string = '';
   currentDate: string = '';
+  // currentDateTime: string='';
   isMarketOpen: boolean = false;
 
   error_message: string = "";
@@ -76,6 +79,13 @@ export class SearchResultComponent implements OnInit {
         if (res && res.time_series) {
           this.timeSeries = res.time_series;
           console.log(this.timeSeries, 'this.timeSeries');
+          this.loadChartData()
+        }
+
+        if (res && res.time_series2) {
+          this.timeSeries2 = res.time_series2;
+          console.log(this.timeSeries2, 'this.timeSeries2');
+          this.loadChartData()
         }
 
         if (res && res.in_sentiment) {
@@ -150,14 +160,24 @@ export class SearchResultComponent implements OnInit {
     const dayOfWeek = now.getDay();
     const hours = now.getHours();
     const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+
+    const formattedDate = now.getFullYear() + '-' + 
+                          ('0' + (now.getMonth() + 1)).slice(-2) + '-' + 
+                          ('0' + now.getDate()).slice(-2);
+    const formattedTime = ('0' + hours).slice(-2) + ':' + 
+                          ('0' + minutes).slice(-2) + ':' + 
+                          ('0' + seconds).slice(-2);
   
     if (dayOfWeek >= 1 && dayOfWeek <= 5 && (hours > 9 || (hours === 9 && minutes >= 30)) && (hours < 16)) {
-      this.marketStatus = 'Market is open';
+      this.marketStatus = 'Market is open on '+ formattedDate + ' ' + formattedTime;
       this.isMarketOpen = true;
     } else {
-      this.marketStatus = 'Market is closed';
+      this.marketStatus = 'Market is closed on '+ formattedDate + ' ' + formattedTime;
       this.isMarketOpen = false;
     }
+
+    // this.currentDateTime = now.toLocaleString('default', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
 
@@ -225,6 +245,10 @@ export class SearchResultComponent implements OnInit {
 
   news: NewsItem[] = [];
   inSentiment: InSentiment = { data: [], symbol: "" };
+  timeSeries2: TimeSeriesData2 = {
+    detailedData: [],
+    maxVolume: 0,
+  };
 
   timeSeries: TimeSeries = {
     c: [],
@@ -270,8 +294,9 @@ export class SearchResultComponent implements OnInit {
     // this.initChart();
     console.log(this.data, "sucess");
   }
+  
 
-  //求解Highcharts
+  //recomd-Highcharts
   initChart(): void {
     this.chartOptions = {
       chart: {
@@ -351,6 +376,60 @@ export class SearchResultComponent implements OnInit {
       ],
     };
   }
+
+
+  loadChartData():void{
+    this.chartOptions2 = {
+      rangeSelector: {
+          selected: 2
+      },
+      title: {
+          text: `Stock Price`
+      },
+      yAxis: [{
+          labels: {
+              align: 'right'
+          },
+          title: {
+              text: 'OHLC'
+          },
+          height: '60%',
+          resize: {
+              enabled: true
+          }
+      }, {
+          labels: {
+              align: 'right'
+          },
+          title: {
+              text: 'Volume'
+          },
+          top: '65%',
+          height: '35%',
+          offset: 0,
+          lineWidth: 2
+      }],
+      series: [{
+          type: 'candlestick',
+          // data: this.timeSeries.c.map(entry => [entry[0], entry[1]]),
+          data: this.timeSeries2.detailedData.map(entry => [entry.timestamp, entry.open, entry.high, entry.low, entry.close]),
+          // this.recomdInfo.map((info) => info.buy),
+          tooltip: {
+              valueDecimals: 2
+          }
+      }, {
+          type: 'column',
+          name: 'Volume',
+          data: this.timeSeries.v.map(entry => [entry[0], entry[1]]),
+          yAxis: 1
+      }]
+  };
+    
+  }
+
+  
+
+
   
   
 
@@ -449,4 +528,20 @@ interface RecomdInfo {
   strongSell: number;
   period: string;
   symbol: string;
+}
+
+
+interface TimeSeriesDetail {
+  timestamp: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+// 定义整个时间序列数据的接口
+interface TimeSeriesData2 {
+  detailedData: TimeSeriesDetail[];
+  maxVolume: number;
 }

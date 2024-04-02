@@ -122,44 +122,45 @@ async function getStockTimeSeriesData(symbol) {
   }
 }
 
-// async function getStockTimeSeriesData2(symbol) {
-//   let date = moment(); // 当前日期
-  
-//   // 如果今天是周六（6）或周日（0），调整为上一个周五
-//   if (date.day() === 0) { // 如果今天是周日
-//     date = date.subtract(3, 'days'); // 往前调整2天到周五
-//   } else if (date.day() === 6) { // 如果今天是周六
-//     date = date.subtract(2, 'days'); // 往前调整1天到周五
-//   }
+async function getStockTimeSeriesData2(symbol) {
+  const fromDate = moment()
+    .subtract(6, "months")
+    .subtract(1, "days")
+    .format("YYYY-MM-DD");
+  const toDate = moment().format("YYYY-MM-DD");
+  const url = `https://api.polygon.io/v2/aggs/ticker/${symbol}/range/2/day/${fromDate}/${toDate}?adjusted=true&sort=asc&apiKey=${API_KEY_POLYGON}`;
+  try {
+    const response = await axios.get(url);
+    const data = response.data.results || [];
+    let detailedData = [];
+    // let volumeData = [];
+    let maxVolume = 0;
+    for (let i of data) {
+      let timestamp = i.t;
+      let open = i.o;
+      let high = i.h;
+      let low = i.l;
+      let close = i.c;
+      let volume = i.v;
 
-//   const fromDate = date.format("YYYY-MM-DD");
-//   console.log(fromDate,"fromDate");
-//   const toDate = date.format("YYYY-MM-DD");
-//   console.log(toDate,"toDate");
-//   const url = `https://api.polygon.io/v2/aggs/ticker/${symbol}/range/1/day/${fromDate}/${toDate}?adjusted=true&sort=asc&apiKey=${API_KEY_POLYGON}`;
+      detailedData.push({
+        timestamp: timestamp,
+        open: Math.round(open * 100) / 100, // 保持与价格的处理一致
+        high: Math.round(high * 100) / 100,
+        low: Math.round(low * 100) / 100,
+        close: Math.round(close * 100) / 100,
+        volume: volume
+      });
+      if (volume > maxVolume) {
+        maxVolume = volume;
+      }
+    }
+    return { detailedData: detailedData, maxVolume: maxVolume };;
+  } catch (error) {
+    return null;
+  }
+}
 
-//   try {
-//     const response = await axios.get(url);
-//     const data = response.data.results || [];
-//     let chartData = [];
-//     let volumeData = [];
-//     let maxVolume = 0;
-//     for (let i of data) {
-//       let timestamp = i.t;
-//       let price = Math.round(i.c * 100) / 100;
-//       let volume = i.v;
-//       chartData.push([timestamp, price]);
-//       volumeData.push([timestamp, volume]);
-//       if (volume > maxVolume) {
-//         maxVolume = volume;
-//       }
-//     }
-//     return { c: chartData, v: volumeData, max_y: maxVolume };
-//   } catch (error) {
-//     console.error(error);
-//     return null;
-//   }
-// }
 
 
 async function getInsiderSentiment(symbol) {
@@ -214,7 +215,7 @@ app.get("/search", async (req, res) => {
     stock_pr: await getStockPeers(symbol),
     stock_earn: await getStockEarnings(symbol),
     recomd: await getRecommendationTrends(symbol),
-    // time_series2: await getStockTimeSeriesData2(symbol)
+    time_series2: await getStockTimeSeriesData2(symbol)
   };
 
   // 检查是否除了in_sentiment的symbol属性外，其他属性都是空的
@@ -234,13 +235,13 @@ app.get("/search", async (req, res) => {
   if (!companyData.in_sentiment || companyData.in_sentiment.data.length === 0) {
     allEmptyExceptInSentiment = true;
   }
-  if (
-    !companyData.time_series ||
-    companyData.time_series.c.length === 0 ||
-    companyData.time_series.v.length === 0
-  ) {
-    allEmptyExceptInSentiment = true;
-  }
+  // if (
+  //   !companyData.time_series ||
+  //   companyData.time_series.c.length === 0 ||
+  //   companyData.time_series.v.length === 0
+  // ) {
+  //   allEmptyExceptInSentiment = true;
+  // }
   if (
     !companyData.quote ||
     companyData.quote.d === null ||
