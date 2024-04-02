@@ -8,3 +8,4 @@ COPY ./ /home/node
 RUN npm i && \
 npm run build
 CMD ["node", "./dist/hw4/server/server.mjs"]
+EXPOSE 4000
