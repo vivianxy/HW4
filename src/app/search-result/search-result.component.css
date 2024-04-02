@@ -53,14 +53,12 @@
   }
 
   .news_detail {
-    border: 1px solid #ccc;
+    border: 1px solid black;
     padding: 10px;
     margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-  }
-  
-  .news_img {
+}
+
+.news_img {
     max-width: 100%;
     height: auto;
-  }
+}

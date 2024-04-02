@@ -108,6 +108,8 @@ export class SearchResultComponent implements OnInit {
     });
   }
 
+  
+
 
   calculateTotalMspr(): number {
     return this.inSentiment.data.reduce((total, currentItem) => total + currentItem.mspr, 0);
@@ -152,6 +154,7 @@ export class SearchResultComponent implements OnInit {
       return total;
     }, 0);
   }
+  
 
 
   checkMarketOpen(): void {
