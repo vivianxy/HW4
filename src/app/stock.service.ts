@@ -8,21 +8,21 @@ import { Observable } from "rxjs";
 export class StockService {
   constructor(private http: HttpClient) {}
   getStockInfo(symbol: string): Observable<any> {
-    const url = `http://localhost:8080/search?symbol=${symbol}`;
+    const url = `https://hw4-backend-mnhf62la4q-uc.a.run.app/search?symbol=${symbol}`;
     return this.http.get<any>(url);
   }
   starStock(data: { name: string; ticker: string }) {
-    const url = "http://localhost:8080/watchlist";
+    const url = "https://hw4-backend-mnhf62la4q-uc.a.run.app/watchlist";
     return this.http.post(url, data);
   }
 
   unstarStock(ticker: string) {
-    const url = `http://localhost:8080/watchlist/${ticker}`;
+    const url = `https://hw4-backend-mnhf62la4q-uc.a.run.app/watchlist/${ticker}`;
     return this.http.delete(url);
   }
 
   getWatchList(): Observable<any> {
-    const url = "http://localhost:8080/watchlist";
+    const url = "https://hw4-backend-mnhf62la4q-uc.a.run.app/watchlist";
     return this.http.get<any>(url);
   }
 
