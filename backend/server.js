@@ -39,7 +39,7 @@ run().catch(console.dir);
 app.use(express.json());
 
 const cors = require("cors");
-app.use(cors({ origin: "http://localhost:4200" }));
+app.use(cors({ origin: "https://frontend-mnhf62la4q-uc.a.run.app" }));
 
 async function getRecommendationTrends(symbol) {
   const url = `https://finnhub.io/api/v1/stock/recommendation?symbol=${symbol}&token=${API_KEY_FIN}`;
