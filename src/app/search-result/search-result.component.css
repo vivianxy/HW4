@@ -37,11 +37,6 @@
     justify-content: center;
 }
 
-.new_img{
-    width: 70px;
-    height: 70px;
-}
-
 .market-open {
     color: green;
   }
@@ -55,4 +50,17 @@
   
   .text-green {
     color: green;
+  }
+
+  .news_detail {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .news_img {
+    max-width: 100%;
+    height: auto;
   }

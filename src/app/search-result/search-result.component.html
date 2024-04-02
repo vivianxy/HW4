@@ -90,7 +90,7 @@
     
         <br><br>
     
-        <!-- 详细信息bar -->
+        <!-- detail bar -->
         <div class="menu_bar">
     
             <div class="col-sm-3 col-xs-3">
@@ -152,14 +152,13 @@
                     </div>
                       
                     <h5>Company peers:</h5>
-                    <!-- 存疑 -->
                     <p class="span-h4_num">{{stockPr}}</p>
                 </div>
             </div>
     
     
     
-            <!-- 存疑 -->
+            <!-- hourly chart -->
             <div class="col-sm-6">
                 <div class="text-center">
                     <p>chart</p>
@@ -169,12 +168,17 @@
     
     
         <!-- news part-->
-        <!-- 存疑-->
         <div *ngIf="currentView === 'shownews'">
             <div *ngFor="let item of news | slice:0:16">
-                <div class="col-sm-6" style="border: 1px solid black; border-radius: 3px; padding-top: 30px; padding-bottom: 30px;">
-                    <h5>{{ item.headline }}</h5>
+                <div class="news_detail">
+                    <div class="col-sm-2">
+                        <img class="news_img" *ngIf="item.image" [src]="item.image" alt="News image">
+                    </div>
+                    <div class="col-sm-4">
+                        <h5>{{ item.headline }}</h5>
+                    </div>
                 </div>
+                
 
                 <!-- <img class="news_img" *ngIf="item.image" [src]="item.image" alt="News image"> -->
               </div>
@@ -195,7 +199,7 @@
             [options]="chartOptions2" 
             style="width: 100%; height: 400px; display: block;">
         </highcharts-chart>
-        
+
         </div>
     
         <!-- insight part-->
@@ -239,6 +243,14 @@
                 style="width: 100%; height: 400px; display: block"
                 >
             </highcharts-chart>
+            <div class="col-sm-6">
+                <highcharts-chart
+                [Highcharts]="Highcharts" 
+                [options]="chartOptions3" 
+                style="width: 100%; height: 400px; display: block;">
+                >
+            </highcharts-chart>
+
             </div>
             
             

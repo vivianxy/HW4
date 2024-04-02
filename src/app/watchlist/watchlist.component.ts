@@ -4,6 +4,9 @@ import { StockService } from "../stock.service";
 interface watchItem {
   name: string;
   ticker: string;
+  c: number;
+  dp:number;
+  d:number;
 }
 
 @Component({

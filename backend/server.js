@@ -164,7 +164,7 @@ async function getStockTimeSeriesData2(symbol) {
 
 
 async function getInsiderSentiment(symbol) {
-  const fromDate = "2022-01-01"; // Default start date
+  const fromDate = "2022-01-01";
   const url = `https://finnhub.io/api/v1/stock/insider-sentiment?symbol=${symbol}&from=${fromDate}&token=${API_KEY_FIN}`;
   try {
     const response = await axios.get(url);
@@ -218,7 +218,6 @@ app.get("/search", async (req, res) => {
     time_series2: await getStockTimeSeriesData2(symbol)
   };
 
-  // 检查是否除了in_sentiment的symbol属性外，其他属性都是空的
   let allEmptyExceptInSentiment = false;
   if (!companyData.profile || companyData.profile.length === 0) {
     allEmptyExceptInSentiment = true;
@@ -256,21 +255,21 @@ app.get("/search", async (req, res) => {
     res.json(companyData);
   }
 });
-// 求解 收藏
+
 app.post("/watchlist", async (req, res, next) => {
   try {
     await client.connect();
     const db = client.db("HW4");
     const coll = db.collection("Watchlist");
-    const { name, ticker } = req.body;
+    const { name, ticker , c, dp , d} = req.body;
 
     const existingStock = await coll.findOne({ ticker: ticker });
     if (existingStock) {
-      // 如果股票已存在，返回一个错误消息
+      // if alredy has
       res.status(400).send({ message: "Stock already in watchlist." });
-      return; // 阻止进一步执行
+      return;
     }
-    const stock = { name, ticker };
+    const stock = { name, ticker , c, dp, d};
     const result = await coll.insertOne(stock);
     res.send(result);
   } catch (error) {
@@ -297,7 +296,6 @@ app.delete("/watchlist/:ticker", async (req, res) => {
     await client.connect();
     const db = client.db("HW4");
     const coll = db.collection("Watchlist");
-    // 使用请求参数中的ticker作为标识来删除对应的收藏项
     const { ticker } = req.params;
     const result = await coll.deleteOne({ ticker: ticker });
     if (result.deletedCount === 0) {

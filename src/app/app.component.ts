@@ -10,7 +10,6 @@ export class AppComponent {
 
   errorMessage: boolean = false;
 
-  // 接受子组件发送的消息
   errorChange(value: boolean) {
     console.log(8888)
     this.errorMessage = value;
@@ -18,7 +17,6 @@ export class AppComponent {
 
   data: any
 
-  // 接受子组件发送的消息
   successChange(value: any) {
     console.log(8888)
     this.data = value;

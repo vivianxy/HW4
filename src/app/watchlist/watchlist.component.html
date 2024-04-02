@@ -1,13 +1,29 @@
-<h1>watchList</h1>
+<div class="col-sm-offset-1">
+  <h1>watchList</h1>
+</div>
 <div *ngIf="watchList.length > 0; else noStocksTemplate">
-  <div *ngFor="let item of watchList" class="card">
+  <div *ngFor="let item of watchList" class="card card-with-border">
     <div class="card-body">
-      <h5 class="card-title">{{ item.name }}</h5>
-      <h6 class="card-subtitle mb-2 text-muted">{{ item.ticker }}</h6>
-      <!-- You can add more item details here -->
+      <div class="col-sm-5 col-sm-offset-1">
+        <h3 class="card-title">{{ item.name }}</h3>
+        <h5 class="card-subtitle mb-2 text-muted">{{ item.ticker }}</h5>
+      </div>
+      <div class="col-sm-5 col-sm-offset-1">
+        <h5 [ngStyle]="{'color': item.c > 0 ? 'green' : 'red'}">{{ item.c }}</h5>
+        <span [ngStyle]="{'color': item.c > 0 ? 'green' : 'red'}">{{ item.dp }}</span>
+        <span [ngStyle]="{'color': item.c > 0 ? 'green' : 'red'}">({{ item.d }})</span>
+      </div>
     </div>
   </div>
 </div>
+<ng-template #noStocksTemplate>
+  <div class="alert alert-warning" role="alert">
+    There are no stocks in your watchlist.
+  </div>
+</ng-template>
+
+
+
 <ng-template #noStocksTemplate>
   <div class="alert alert-warning" role="alert">
     There are no stocks in your watchlist.

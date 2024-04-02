@@ -2,8 +2,6 @@ import { HttpClient } from "@angular/common/http";
 // import * as Highcharts from 'highcharts';
 import * as Highcharts from 'highcharts/highstock';
 import HC_exporting from 'highcharts/modules/exporting';
-//求解Highcharts，关联下面initChart()
-// HC_exporting(Highcharts);
 import {
   Component,
   Input,
@@ -19,10 +17,10 @@ import { StockService } from "../stock.service";
   styleUrl: "./search-result.component.css",
 })
 export class SearchResultComponent implements OnInit {
-  //求解Highcharts
-  Highcharts: typeof Highcharts = Highcharts; // 将Highcharts赋值给组件属性以在模板中使用
-  chartOptions: Highcharts.Options = {}; // 用于存储图表配置的属性
+  Highcharts: typeof Highcharts = Highcharts;
+  chartOptions: Highcharts.Options = {};
   chartOptions2: Highcharts.Options = {};
+  chartOptions3: Highcharts.Options = {};
 
   searchTerm: string = "";
   autocompleteResults: any[] = [];
@@ -36,7 +34,7 @@ export class SearchResultComponent implements OnInit {
   error_message: string = "";
   isLoading: boolean = false;
   search(): void {
-    // 使用StockService进行搜索
+    // use StockService to search
     this.isLoading = true;
     this.stockService.getStockInfo(this.searchTerm).subscribe((res) => {
       console.log(res);
@@ -96,6 +94,7 @@ export class SearchResultComponent implements OnInit {
         if (res && res.stock_earn) {
           this.stockEarn = res.stock_earn as StockEarnings[];
           console.log(this.stockEarn, 'this.stockEarn');
+          this.anotherChart();
         }
 
         if (res && res.recomd) {
@@ -201,14 +200,16 @@ export class SearchResultComponent implements OnInit {
       this.autocompleteResults = filteredResults;
     });
   }
-
-  //求解 收藏
+//save
   isStar = false;
   starHandler(): void {
     this.isStar = !this.isStar;
     const data = {
       name: this.profile.name,
       ticker: this.profile.ticker,
+      c:this.quote.c,
+      dp:this.quote.dp,
+      d:this.quote.d,
     };
     //
     if (this.isStar) {
@@ -224,7 +225,7 @@ export class SearchResultComponent implements OnInit {
   checkStockStarred(): void {
     this.stockService.getWatchList().subscribe(
       (watchList) => {
-        // 假设 this.profile 已有值且包含当前股票的 ticker
+        // assume this.profile already have
         this.isStar = watchList.some(
           (item: { ticker: string }) => item.ticker === this.profile.ticker
         );
@@ -350,82 +351,125 @@ export class SearchResultComponent implements OnInit {
       series: [
         {
           name: "Buy",
-          type: "column", // 明确指定系列的类型
+          type: "column",
           data: this.recomdInfo.map((info) => info.buy),
         },
         {
           name: "Hold",
-          type: "column", // 明确指定系列的类型
+          type: "column",
           data: this.recomdInfo.map((info) => info.hold),
         },
         {
           name: "Sell",
-          type: "column", // 明确指定系列的类型
+          type: "column",
           data: this.recomdInfo.map((info) => info.sell),
         },
         {
           name: "Strong Buy",
-          type: "column", // 明确指定系列的类型
+          type: "column",
           data: this.recomdInfo.map((info) => info.strongBuy),
         },
         {
           name: "Strong Sell",
-          type: "column", // 明确指定系列的类型
+          type: "column",
           data: this.recomdInfo.map((info) => info.strongSell),
         },
       ],
     };
   }
 
-
-  loadChartData():void{
-    this.chartOptions2 = {
-      rangeSelector: {
-          selected: 2
+  anotherChart():void{
+    this.chartOptions3 = {
+      chart: {
+        type: 'line'
+    },
+    title: {
+        text: 'Historical EPS Surprises'
+    },
+    xAxis: {
+        categories: this.stockEarn.map((info) => info.surprise.toString()),
+    },
+    yAxis: {
+        title: {
+            text: 'Quarterly ESP'
+        }
+    },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+    series: [
+      {
+        name: "Actual",
+        type: "line",
+        data: this.stockEarn.map((info) => info.actual),
       },
-      title: {
-          text: `Stock Price`
-      },
-      yAxis: [{
-          labels: {
-              align: 'right'
-          },
-          title: {
-              text: 'OHLC'
-          },
-          height: '60%',
-          resize: {
-              enabled: true
-          }
-      }, {
-          labels: {
-              align: 'right'
-          },
-          title: {
-              text: 'Volume'
-          },
-          top: '65%',
-          height: '35%',
-          offset: 0,
-          lineWidth: 2
-      }],
-      series: [{
-          type: 'candlestick',
-          // data: this.timeSeries.c.map(entry => [entry[0], entry[1]]),
-          data: this.timeSeries2.detailedData.map(entry => [entry.timestamp, entry.open, entry.high, entry.low, entry.close]),
-          // this.recomdInfo.map((info) => info.buy),
-          tooltip: {
-              valueDecimals: 2
-          }
-      }, {
-          type: 'column',
-          name: 'Volume',
-          data: this.timeSeries.v.map(entry => [entry[0], entry[1]]),
-          yAxis: 1
-      }]
-  };
-    
+      {
+        name: "Estimate",
+        type: "line",
+        data: this.stockEarn.map((info) => info.estimate),
+      }
+    ]
+    }
   }
+
+
+  loadChartData(): void {
+    this.chartOptions2 = {
+        rangeSelector: {
+            selected: 2
+        },
+        title: {
+            text: 'Stock Price'
+        },
+        yAxis: [{
+            labels: {
+                align: 'right'
+            },
+            title: {
+                text: 'OHLC'
+            },
+            height: '60%',
+            resize: {
+                enabled: true
+            }
+        }, {
+            labels: {
+                align: 'right'
+            },
+            title: {
+                text: 'Volume'
+            },
+            top: '65%',
+            height: '35%',
+            offset: 0,
+            lineWidth: 2
+        }],
+        series: [{
+            type: 'candlestick',
+            data: this.timeSeries2.detailedData.map(entry => [entry.timestamp, entry.open, entry.high, entry.low, entry.close]),
+            tooltip: {
+                valueDecimals: 2
+            },
+        }, {
+            type: 'column',
+            name: 'Volume',
+            data: this.timeSeries2.detailedData.map(entry => [entry.timestamp, entry.volume]),
+            yAxis: 1,
+        }],
+        navigator: {
+            enabled: true,
+            series: {
+                data: this.timeSeries2.detailedData.map(entry => [entry.timestamp, entry.close])
+            }
+        }
+    };
+}
+
 
   
 
@@ -540,7 +584,6 @@ interface TimeSeriesDetail {
   volume: number;
 }
 
-// 定义整个时间序列数据的接口
 interface TimeSeriesData2 {
   detailedData: TimeSeriesDetail[];
   maxVolume: number;
